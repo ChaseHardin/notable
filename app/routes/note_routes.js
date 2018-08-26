@@ -1,23 +1,36 @@
 var ObjectID = require('mongodb').ObjectID;
 
-module.exports = function(app, db) {
+module.exports = function (app, db) {
     app.get('/notes/:id', (req, res) => {
         const id = req.params.id;
-        const details = {'_id': new ObjectID(id)};
+        const details = { '_id': new ObjectID(id) };
 
         db.collection('notes').findOne(details, (err, item) => {
-            err ? res.send({'error':'An error has occurred'}) : res.send(item);;
+            err ? res.send({ 'error': 'An error has occurred' }) : res.send(item);;
         });
     });
 
     app.post('/notes', (req, res) => {
-        const note = { 
-            title: req.body.title, 
-            body: req.body.body 
+        const note = {
+            title: req.body.title,
+            body: req.body.body
         };
 
         db.collection('notes').insertOne(note, (err, result) => {
-            err ? res.send({'error': 'An error has occurred'}) : res.send(result.ops[0]);
+            err ? res.send({ 'error': 'An error has occurred' }) : res.send(result.ops[0]);
+        });
+    });
+
+    app.put('/notes/:id', (req, res) => {
+        const id = req.params.id;
+        const details = { '_id': new ObjectID(id) };
+        const note = {
+            title: req.body.title,
+            body: req.body.body
+        };
+
+        db.collection('notes').updateOne(details, {$set: note}, (err, result) => {
+            err ? res.send({ 'error': 'An error has occurred: ' + err }) : res.send(note); 
         });
     });
 
@@ -26,7 +39,7 @@ module.exports = function(app, db) {
         const details = { '_id': new ObjectID(id) };
 
         db.collection('notes').remove(details, (err, item) => {
-            err ? res.send({'error': 'An error has occurred'}) : res.send('Note ' + id + ' deleted!');
+            err ? res.send({ 'error': 'An error has occurred' }) : res.send('Note ' + id + ' deleted!');
         });
     });
 };
